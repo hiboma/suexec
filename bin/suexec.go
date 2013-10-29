@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/hiboma/suexec"
 	"github.com/hiboma/suexec/env"
+	"github.com/hiboma/suexec/group"
 	"github.com/hiboma/suexec/passwd"
 	"github.com/hiboma/suexec/script"
 	"os"
@@ -101,8 +102,14 @@ func main() {
 		os.Exit(121)
 	}
 
-	gid := pw.Gid
-	actual_gname := "wheel"
+	/*
+	 * Error out if the target group name is invalid.
+	 */
+	gid, actual_gname, err := group.LookupGidAndName(target_gname)
+	if err != nil {
+		logErr("invalid target group name: (%s)\n", target_gname)
+		os.Exit(106)
+	}
 
 	/*
 	 * Save these for later since initgroups will hose the struct
