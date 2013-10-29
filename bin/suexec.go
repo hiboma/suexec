@@ -219,39 +219,6 @@ func main() {
 		os.Exit(err.Status())
 	}
 
-	// #ifdef AP_SUEXEC_UMASK
-	//     /*
-	//      * umask() uses inverse logic; bits are CLEAR for allowed access.
-	//      */
-	//     if ((~AP_SUEXEC_UMASK) & 0022) {
-	//         log_err("notice: AP_SUEXEC_UMASK of %03o allows "
-	//                 "write permission to group and/or other\n", AP_SUEXEC_UMASK);
-	//     }
-	//     umask(AP_SUEXEC_UMASK);
-	// #endif /* AP_SUEXEC_UMASK */
-	/* Be sure to close the log file so the CGI can't mess with it. */
-	//     if (log != NULL) {
-	// #if APR_HAVE_FCNTL_H
-	//         /*
-	//          * ask fcntl(2) to set the FD_CLOEXEC flag on the log file,
-	//          * so it'll be automagically closed if the exec() call succeeds.
-	//          */
-	//         fflush(log);
-	//         setbuf(log, NULL);
-	//         if ((fcntl(fileno(log), F_SETFD, FD_CLOEXEC) == -1)) {
-	//             log_err("error: can't set close-on-exec flag");
-	//             exit(122);
-	//         }
-	// #else
-	//         /*
-	//          * In this case, exec() errors won't be logged because we have already
-	//          * dropped privileges and won't be able to reopen the log file.
-	//          */
-	//         fclose(log);
-	//         log = NULL;
-	// #endif
-	//     }
-
 	if err := syscall.Exec(cmd, os.Args, environ); err != nil {
 		logErr("(%d) %s: failed(%s)\n", err, err, cmd)
 		os.Exit(1)
