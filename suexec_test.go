@@ -30,35 +30,33 @@ func TestConstant(t *testing.T) {
 
 	})
 
-	Describe(t, "IsValidCommand", func() {
-		It("index.pl is valid command", func() {
-			Expect(IsValidCommand("index.pl")).To(Equal, true)
-		})
-
-		It("bin/index.pl is valid command", func() {
-			Expect(IsValidCommand("bin/index.pl")).To(Equal, true)
-		})
-
-		It("../index.pl is invalid command", func() {
-			Expect(IsValidCommand("../index.pl")).To(Equal, false)
-		})
-
-		It("/index.pl is invalid command", func() {
-			Expect(IsValidCommand("/index.pl")).To(Equal, false)
-		})
-
-		It("bin/../index.pl is invalid command", func() {
-			Expect(IsValidCommand("bin/../index.pl")).To(Equal, false)
-		})
-	})
-
 	Describe(t, "IsUserdirEnabled", func() {
 		It("If username has '~' for prefix, Userdir is enabled", func() {
-			Expect(IsValidCommand("~namahage")).To(Equal, true)
+			Expect(IsUserdirEnabled("~namahage")).To(Equal, true)
 		})
 
 		It("Userdir is diabled", func() {
-			Expect(IsValidCommand("namahage")).To(Equal, true)
+			Expect(IsUserdirEnabled("namahage")).To(Equal, false)
+		})
+	})
+
+	Describe(t, "NewError", func() {
+		It("NewError", func() {
+			err := NewError(0, "error is %s", "one")
+			Expect(err.status).To(Equal, 0)
+			Expect(err.message).To(Equal, "error is one")
+		})
+
+		It("NewError", func() {
+			err := NewError(0, "error is %s, %s", "one", "two")
+			Expect(err.status).To(Equal, 0)
+			Expect(err.message).To(Equal, "error is one, two")
+		})
+
+		It("NewError", func() {
+			err := NewError(100, "error is %s", "one")
+			Expect(err.status).To(Equal, 100)
+			Expect(err.message).To(Equal, "error is one")
 		})
 	})
 }

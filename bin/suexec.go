@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"github.com/hiboma/suexec"
 	"github.com/hiboma/suexec/env"
+	"github.com/hiboma/suexec/passwd"
+	"github.com/hiboma/suexec/script"
 	"os"
 	"os/user"
-	"regexp"
 	"strconv"
 	"strings"
 	"syscall"
@@ -85,17 +86,6 @@ func main() {
 	}
 
 	/*
-	 * Check for a leading '/' (absolute path) in the command to be executed,
-	 * or attempts to back up out of the current directory,
-	 * to protect against attacks.  If any are
-	 * found, error out.  Naughty naughty crackers.
-	 */
-	if !suexec.IsValidCommand(cmd) {
-		logErr("invalid command (%s)\n", cmd)
-		os.Exit(104)
-	}
-
-	/*
 	 * Check to see if this is a ~userdir request.  If
 	 * so, set the flag, and remove the '~' from the
 	 * target username.
@@ -105,25 +95,12 @@ func main() {
 	/*
 	 * Error out if the target username is invalid.
 	 */
-	r, err := regexp.Compile(`^\d+$`)
-	if !r.MatchString(target_uname) {
-		pw, err = user.Lookup(target_uname)
-		if err != nil {
-			logErr("invalid target user name: (%s)\n", target_uname)
-			os.Exit(105)
-		}
-	} else {
-		pw, err = user.LookupId(target_uname)
-		if err != nil {
-			logErr("invalid target user id: (%s)\n", target_uname)
-			os.Exit(121)
-		}
+	pw, err = passwd.Lookup(target_uname)
+	if err != nil {
+		logErr("invalid target user: (%s)\n", target_uname)
+		os.Exit(121)
 	}
-	if !r.MatchString(target_gname) {
-		/* todo */
-	} else {
-		/* todo */
-	}
+
 	gid := pw.Gid
 	actual_gname := "wheel"
 
@@ -224,65 +201,15 @@ func main() {
 		os.Exit(114)
 	}
 
-	/*
-	 * Stat the cwd and verify it is a directory, or error out.
-	 */
-	dir_info, err := os.Lstat(cwd)
-	if err != nil || !dir_info.IsDir() {
-		logErr("cannot stat directory: (%s)\n", cwd)
-		os.Exit(115)
+	script, err := script.NewScript(cmd, cwd)
+	if err != nil {
+		logErr("%v\n", err)
+		os.Exit(1)
 	}
 
-	/*
-	 * Error out if cwd is writable by others.
-	 */
-	if dir_info.Sys().(*syscall.Stat_t).Mode&syscall.S_IWOTH != 0 ||
-		dir_info.Sys().(*syscall.Stat_t).Mode&syscall.S_IWGRP != 0 {
-		logErr("directory is writable by others: (%s)\n", cwd)
-		os.Exit(116)
-	}
-
-	/*
-	 * Error out if we cannot stat the program.
-	 */
-	prg_info, err := os.Lstat("index.rb")
-	if err != nil || prg_info.Mode()&os.ModeSymlink != 0 {
-		logErr("cannot stat program: (%s) %s %s\n", cmd, cwd, err)
-		os.Exit(117)
-	}
-
-	/*
-	 * Error out if the file is setuid or setgid.
-	 */
-	if prg_info.Mode()&os.ModeSetuid != 0 ||
-		prg_info.Mode()&os.ModeSetgid != 0 {
-		logErr("file is either setuid or setgid: (%s/%s)\n", cwd, cmd)
-		os.Exit(118)
-	}
-
-	/*
-	 * Error out if cwd is writable by others.
-	 */
-	if prg_info.Sys().(*syscall.Stat_t).Mode&syscall.S_IWOTH != 0 ||
-		prg_info.Sys().(*syscall.Stat_t).Mode&syscall.S_IWGRP != 0 {
-		logErr("file is writable by others: (%s)\n", cwd)
-		os.Exit(118)
-	}
-
-	/*
-	 * Error out if the target name/group is different from
-	 * the name/group of the cwd or the program.
-	 */
-	if uint32(uid_int) != dir_info.Sys().(*syscall.Stat_t).Uid ||
-		uint32(gid_int) != dir_info.Sys().(*syscall.Stat_t).Gid ||
-		uint32(uid_int) != prg_info.Sys().(*syscall.Stat_t).Uid ||
-		uint32(gid_int) != prg_info.Sys().(*syscall.Stat_t).Gid {
-		logErr("target uid/gid (%d/%d) mismatch with directory (%d/%d) or program (%d/%d)\n",
-			uid_int, gid_int,
-			prg_info.Sys().(*syscall.Stat_t).Uid,
-			prg_info.Sys().(*syscall.Stat_t).Gid,
-			dir_info.Sys().(*syscall.Stat_t).Uid,
-			dir_info.Sys().(*syscall.Stat_t).Gid)
+	if err := script.VerifyToSuexec(uid_int, gid_int); err != nil {
+		logErr(err.Message())
+		os.Exit(err.Status())
 	}
 
 	// #ifdef AP_SUEXEC_UMASK
