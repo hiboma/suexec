@@ -1,7 +1,7 @@
 package script
 
 import (
-	"errors"
+	"fmt"
 	"github.com/hiboma/suexec"
 	"os"
 	"strings"
@@ -17,20 +17,20 @@ func NewScript(path string, cwd string) (*Script, error) {
 
 	cwd_info, err := os.Lstat(cwd)
 	if err != nil || !cwd_info.IsDir() {
-		return nil, errors.New("cannot stat directory: (%s)\n")
+		return nil, fmt.Errorf("cannot stat directory: (%s)\n", path)
 	}
 
 	if !cwd_info.IsDir() {
-		return nil, errors.New("cannot stat program: (%s) %s %s\n")
+		return nil, fmt.Errorf("cannot stat program: (%s) %s\n", path)
 	}
 
 	path_info, err := os.Lstat(path)
 	if err != nil {
-		return nil, errors.New("cannot stat program: (%s) %s %s\n")
+		return nil, fmt.Errorf("cannot stat program: (%s) %s\n", path)
 	}
 
 	if path_info.Mode()&os.ModeSymlink != 0 {
-		return nil, errors.New("cannot stat program: (%s) %s %s\n")
+		return nil, fmt.Errorf("cannot stat program: (%s) %s\n", path)
 	}
 
 	return &Script{path: path, cwd: cwd, path_info: path_info, cwd_info: cwd_info}, nil
