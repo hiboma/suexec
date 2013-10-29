@@ -43,3 +43,18 @@ mv go /usr/local/go
 EOS
   creates "/usr/local/go/bin/go"
 end
+
+# Why patch/rebuild ?
+# https://code.google.com/p/go/issues/detail?id=2617&q=group&colspec=ID%20Status%20Stars%20Priority%20Owner%20Reporter%20Summary
+execute "patch & rebuild golang" do
+  cwd "/usr/local/go/src"
+  command <<EOS
+curl https://codereview.appspot.com/download/issue13454043_3001_4001.diff | patch -p2 &&
+curl https://codereview.appspot.com/download/issue13454043_3001_4002.diff | patch -p2 &&
+curl https://codereview.appspot.com/download/issue13454043_3001_4003.diff | patch -p2 &&
+curl https://codereview.appspot.com/download/issue13454043_3001_4004.diff | patch -p2 &&
+curl https://codereview.appspot.com/download/issue13454043_3001_4005.diff | patch -p2 &&
+./make.bash
+EOS
+  command
+end
