@@ -2,6 +2,7 @@ package suexec
 
 import (
 	. "github.com/r7kamura/gospel"
+	"os/user"
 	"testing"
 )
 
@@ -13,10 +14,16 @@ func TestSuexecPasswd(t *testing.T) {
 			Expect(err).To(Equal, nil)
 		})
 
+		It("lookup 'hogehogehoge' should not exists", func() {
+			pw, err := Lookup("hgoehogehgoe")
+			Expect(pw).To(Exist)
+			Expect(err.(user.UnknownUserError)).To(Exist)
+		})
+
 		It("lookup '1234567890' should not exists", func() {
 			pw, err := Lookup("1234567890")
 			Expect(pw).To(Exist)
-			Expect(err).To(NotEqual, nil)
+			Expect(err.(user.UnknownUserIdError)).To(Exist)
 		})
 	})
 }

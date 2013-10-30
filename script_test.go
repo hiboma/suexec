@@ -19,7 +19,7 @@ func TestSuexecScript(t *testing.T) {
 		It("should not be success when a script not exists", func() {
 			s, err := NewScript("script not found", ".")
 			Expect(s == nil).To(Exist)
-			Expect(err).To(Exist)
+			Expect(os.IsExist(err)).To(Equal, false)
 		})
 	})
 
