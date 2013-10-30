@@ -1,11 +1,11 @@
-package passwd
+package suexec
 
 import (
 	. "github.com/r7kamura/gospel"
 	"testing"
 )
 
-func TestConstant(t *testing.T) {
+func TestSuexecPasswd(t *testing.T) {
 	Describe(t, "Lookup", func() {
 		It("lookup 'root' should exists", func() {
 			pw, err := Lookup("root")

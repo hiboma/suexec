@@ -1,4 +1,4 @@
-package passwd
+package suexec
 
 import (
 	"os/user"

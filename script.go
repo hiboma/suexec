@@ -1,8 +1,7 @@
-package script
+package suexec
 
 import (
 	"fmt"
-	"github.com/hiboma/suexec"
 	"os"
 	"strings"
 	"syscall"
@@ -36,30 +35,30 @@ func NewScript(path string, cwd string) (*Script, error) {
 	return &Script{path: path, cwd: cwd, path_info: path_info, cwd_info: cwd_info}, nil
 }
 
-func (self *Script) VerifyToSuexec(uid int, gid int) *suexec.Error {
+func (self *Script) VerifyToSuexec(uid int, gid int) *Error {
 
 	if !self.HasSecurePath() {
-		return suexec.NewError(104, "invalid command (%s)\n", self.path)
+		return NewError(104, "invalid command (%s)\n", self.path)
 	}
 
 	if self.IsDirWritableByOthers() {
-		return suexec.NewError(116, "directory is writable by others: (%s)\n", self.cwd)
+		return NewError(116, "directory is writable by others: (%s)\n", self.cwd)
 	}
 
 	if self.IsWritableByOthers() {
-		return suexec.NewError(118, "file is writable by others: (%s/%s)\n", self.cwd, self.path)
+		return NewError(118, "file is writable by others: (%s/%s)\n", self.cwd, self.path)
 	}
 
 	if self.IsSetuid() || self.IsSetgid() {
-		return suexec.NewError(119, "file is either setuid or setgid: (%s/%s)\n", self.path, self.cwd)
+		return NewError(119, "file is either setuid or setgid: (%s/%s)\n", self.path, self.cwd)
 	}
 
 	if !self.IsExecutable() {
-		return suexec.NewError(121, "file has no execute permission: (%s/%s)\n", self.cwd, self.path)
+		return NewError(121, "file has no execute permission: (%s/%s)\n", self.cwd, self.path)
 	}
 
 	if !self.IfOwnerMatch(uid, gid) {
-		return suexec.NewError(121, "target uid/gid (%d/%d) mismatch with directory (%d/%d) or program (%d/%d)\n",
+		return NewError(121, "target uid/gid (%d/%d) mismatch with directory (%d/%d) or program (%d/%d)\n",
 			uid, gid,
 			self.path_info.Sys().(*syscall.Stat_t).Uid,
 			self.path_info.Sys().(*syscall.Stat_t).Gid,

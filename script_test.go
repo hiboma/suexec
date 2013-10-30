@@ -1,4 +1,4 @@
-package script
+package suexec
 
 import (
 	. "github.com/r7kamura/gospel"

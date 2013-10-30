@@ -1,4 +1,4 @@
-package group
+package suexec
 
 import (
 	"os/user"

@@ -3,10 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/hiboma/suexec"
-	"github.com/hiboma/suexec/env"
-	"github.com/hiboma/suexec/group"
-	"github.com/hiboma/suexec/passwd"
-	"github.com/hiboma/suexec/script"
 	"os"
 	"os/user"
 	"strconv"
@@ -45,7 +41,7 @@ func main() {
 	/*
 	 * Start with a "clean" environment
 	 */
-	environ := env.CleanEnv()
+	environ := suexec.CleanEnv()
 
 	/*
 	 * Check existence/validity of the UID of the user
@@ -96,7 +92,7 @@ func main() {
 	/*
 	 * Error out if the target username is invalid.
 	 */
-	pw, err = passwd.Lookup(target_uname)
+	pw, err = suexec.Lookup(target_uname)
 	if err != nil {
 		logErr("invalid target user: (%s)\n", target_uname)
 		os.Exit(121)
@@ -105,7 +101,7 @@ func main() {
 	/*
 	 * Error out if the target group name is invalid.
 	 */
-	gid, actual_gname, err := group.LookupGidAndName(target_gname)
+	gid, actual_gname, err := suexec.LookupGidAndName(target_gname)
 	if err != nil {
 		logErr("invalid target group name: (%s)\n", target_gname)
 		os.Exit(106)
@@ -208,7 +204,7 @@ func main() {
 		os.Exit(114)
 	}
 
-	script, err := script.NewScript(cmd, cwd)
+	script, err := suexec.NewScript(cmd, cwd)
 	if err != nil {
 		logErr("%v\n", err)
 		os.Exit(1)

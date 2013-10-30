@@ -1,11 +1,11 @@
-package env
+package suexec
 
 import (
 	. "github.com/r7kamura/gospel"
 	"testing"
 )
 
-func TestCleanEnv(t *testing.T) {
+func TestSuexecEnv(t *testing.T) {
 	Describe(t, "cleanupEnv", func() {
 
 		It("cleanup unsafe env", func() {

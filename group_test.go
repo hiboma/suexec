@@ -1,4 +1,4 @@
-package group
+package suexec
 
 import (
 	. "github.com/r7kamura/gospel"
