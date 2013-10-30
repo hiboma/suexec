@@ -40,21 +40,21 @@ func TestConstant(t *testing.T) {
 		})
 	})
 
-	Describe(t, "NewError", func() {
-		It("NewError", func() {
-			err := NewError(0, "error is %s", "one")
+	Describe(t, "NewSuexecError", func() {
+		It("NewSuexecError", func() {
+			err := NewSuexecError(0, "error is %s", "one")
 			Expect(err.status).To(Equal, 0)
 			Expect(err.message).To(Equal, "error is one")
 		})
 
-		It("NewError", func() {
-			err := NewError(0, "error is %s, %s", "one", "two")
+		It("NewSuexecError", func() {
+			err := NewSuexecError(0, "error is %s, %s", "one", "two")
 			Expect(err.status).To(Equal, 0)
 			Expect(err.message).To(Equal, "error is one, two")
 		})
 
-		It("NewError", func() {
-			err := NewError(100, "error is %s", "one")
+		It("NewSuexecError", func() {
+			err := NewSuexecError(100, "error is %s", "one")
 			Expect(err.status).To(Equal, 100)
 			Expect(err.message).To(Equal, "error is one")
 		})

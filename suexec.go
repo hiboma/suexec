@@ -11,20 +11,20 @@ const AP_GID_MIN = "501"
 const AP_DOC_ROOT = "/vagrant/misc"
 const AP_LOG_EXEC = "/tmp/suexec.log"
 
-type Error struct {
+type SuexecError struct {
 	status  int
 	message string
 }
 
-func NewError(status int, format string, args ...interface{}) *Error {
-	return &Error{status, fmt.Sprintf(format, args...)}
+func NewSuexecError(status int, format string, args ...interface{}) *SuexecError {
+	return &SuexecError{status, fmt.Sprintf(format, args...)}
 }
 
-func (self *Error) Status() int {
+func (self *SuexecError) Status() int {
 	return self.status
 }
 
-func (self *Error) Message() string {
+func (self *SuexecError) Message() string {
 	return self.message
 }
 

@@ -35,30 +35,30 @@ func NewScript(path string, cwd string) (*Script, error) {
 	return &Script{path: path, cwd: cwd, path_info: path_info, cwd_info: cwd_info}, nil
 }
 
-func (self *Script) VerifyToSuexec(uid int, gid int) *Error {
+func (self *Script) VerifyToSuexec(uid int, gid int) *SuexecError {
 
 	if !self.HasSecurePath() {
-		return NewError(104, "invalid command (%s)\n", self.path)
+		return NewSuexecError(104, "invalid command (%s)\n", self.path)
 	}
 
 	if self.IsDirWritableByOthers() {
-		return NewError(116, "directory is writable by others: (%s)\n", self.cwd)
+		return NewSuexecError(116, "directory is writable by others: (%s)\n", self.cwd)
 	}
 
 	if self.IsWritableByOthers() {
-		return NewError(118, "file is writable by others: (%s/%s)\n", self.cwd, self.path)
+		return NewSuexecError(118, "file is writable by others: (%s/%s)\n", self.cwd, self.path)
 	}
 
 	if self.IsSetuid() || self.IsSetgid() {
-		return NewError(119, "file is either setuid or setgid: (%s/%s)\n", self.path, self.cwd)
+		return NewSuexecError(119, "file is either setuid or setgid: (%s/%s)\n", self.path, self.cwd)
 	}
 
 	if !self.IsExecutable() {
-		return NewError(121, "file has no execute permission: (%s/%s)\n", self.cwd, self.path)
+		return NewSuexecError(121, "file has no execute permission: (%s/%s)\n", self.cwd, self.path)
 	}
 
 	if !self.IfOwnerMatch(uid, gid) {
-		return NewError(121, "target uid/gid (%d/%d) mismatch with directory (%d/%d) or program (%d/%d)\n",
+		return NewSuexecError(121, "target uid/gid (%d/%d) mismatch with directory (%d/%d) or program (%d/%d)\n",
 			uid, gid,
 			self.path_info.Sys().(*syscall.Stat_t).Uid,
 			self.path_info.Sys().(*syscall.Stat_t).Gid,
