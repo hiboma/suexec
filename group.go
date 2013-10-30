@@ -5,21 +5,23 @@ import (
 	"regexp"
 )
 
-func LookupGidAndName(groupname string) (gid string, actual_gname string, err error) {
+func LookupGroup(groupname string) (*user.Group, error) {
 
-	r, err := regexp.Compile(`^\d+$`)
+	var gr *user.Group
+	var err error
+
+	r := regexp.MustCompile(`^\d+$`)
 	if r.MatchString(groupname) {
-		gid = groupname
-		actual_gname = groupname
-		return
+		gr, err = user.LookupGroupId(groupname)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		gr, err = user.LookupGroup(groupname)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	gr, err := user.LookupGroup(groupname)
-	if err != nil {
-		return
-	}
-	gid = gr.Gid
-	actual_gname = gr.Name
-
-	return
+	return gr, err
 }
