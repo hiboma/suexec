@@ -24,5 +24,10 @@ func TestSuexecLog(t *testing.T) {
 			matched, _ := regexp.Match(`\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\]: this is test`, bytes)
 			Expect(matched).To(Equal, true)
 		})
+
+		It("SetCloseOnExec should return true", func() {
+			log := NewLog("/dev/null")
+			Expect(log.SetCloseOnExec()).To(Equal, true)
+		})
 	})
 }

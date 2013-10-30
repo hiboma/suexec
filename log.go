@@ -2,13 +2,13 @@ package suexec
 
 import (
 	"fmt"
-	"io"
 	"os"
+	"syscall"
 	"time"
 )
 
 type Log struct {
-	log io.Writer
+	log *os.File
 }
 
 func NewLog(path string) *Log {
@@ -18,6 +18,7 @@ func NewLog(path string) *Log {
 		fmt.Fprintf(os.Stderr, "fopen %s\n", err)
 		os.Exit(1)
 	}
+
 	return &Log{log: log}
 }
 
@@ -37,4 +38,15 @@ func (self *Log) LogErr(format string, args ...interface{}) {
 
 func (self *Log) LogNoErr(format string, args ...interface{}) {
 	self.errOutput(false, format, args...)
+}
+
+func (self *Log) SetCloseOnExec() (is_success bool) {
+
+	is_success = true
+	if _, _, errno := syscall.Syscall(syscall.SYS_FCNTL, self.log.Fd(), syscall.F_SETFD, syscall.FD_CLOEXEC); errno != 0 {
+		self.LogErr("error: can't set close-on-exec flag")
+		is_success = false
+	}
+
+	return
 }

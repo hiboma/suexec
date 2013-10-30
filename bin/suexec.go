@@ -8,35 +8,11 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
-	"time"
 )
-
-var log os.File
-
-func logErr(format string, args ...interface{}) {
-	t := time.Now()
-	fmt.Fprintf(os.Stderr, "%s", t.Year)
-	fmt.Fprintf(os.Stderr, format, args...)
-}
-
-func logNoErr(format string, args ...interface{}) {
-
-	//if !log {
-	log, err := os.OpenFile(suexec.AP_LOG_EXEC, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "suexec failure: could not open log file\n")
-		fmt.Fprintf(os.Stderr, "fopen %s\n", err)
-		os.Exit(1)
-	}
-	//}
-
-	t := time.Now()
-	fmt.Fprintf(log, "[%d-%.2d-%.2d %.2d:%.2d:%.2d]: ", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second())
-	fmt.Fprintf(log, format, args...)
-}
 
 func main() {
 	var userdir bool = false
+	log := suexec.NewLog(suexec.AP_LOG_EXEC)
 
 	/*
 	 * Start with a "clean" environment
@@ -49,7 +25,7 @@ func main() {
 	 */
 	pw, err := user.Current()
 	if err != nil {
-		logErr("crit: invalid uid: (%d) %s\n", os.Getuid(), err)
+		log.LogErr("crit: invalid uid: (%d) %s\n", os.Getuid(), err)
 		os.Exit(1)
 	}
 	/*
@@ -78,7 +54,7 @@ func main() {
 	 * suexec.h.  If not the allowed user, error out.
 	 */
 	if suexec.AP_HTTPD_USER != pw.Username {
-		logErr("user mismatch (%s instead os %s)", pw.Username, suexec.AP_HTTPD_USER)
+		log.LogErr("user mismatch (%s instead os %s)", pw.Username, suexec.AP_HTTPD_USER)
 		os.Exit(103)
 	}
 
@@ -94,7 +70,7 @@ func main() {
 	 */
 	pw, err = suexec.Lookup(target_uname)
 	if err != nil {
-		logErr("invalid target user: (%s)\n", target_uname)
+		log.LogErr("invalid target user: (%s)\n", target_uname)
 		os.Exit(121)
 	}
 
@@ -103,7 +79,7 @@ func main() {
 	 */
 	gid, actual_gname, err := suexec.LookupGidAndName(target_gname)
 	if err != nil {
-		logErr("invalid target group name: (%s)\n", target_gname)
+		log.LogErr("invalid target group name: (%s)\n", target_gname)
 		os.Exit(106)
 	}
 
@@ -118,7 +94,7 @@ func main() {
 	 * Log the transaction here to be sure we have an open log
 	 * before we setuid().
 	 */
-	logNoErr("uid: (%s/%s) gid: (%s/%s) cmd: %s\n",
+	log.LogNoErr("uid: (%s/%s) gid: (%s/%s) cmd: %s\n",
 		target_uname, actual_uname,
 		target_gname, actual_gname,
 		cmd)
@@ -128,7 +104,7 @@ func main() {
 	 * a UID less than AP_UID_MIN.  Tsk tsk.
 	 */
 	if uid == "0" || uid < suexec.AP_UID_MIN {
-		logErr("cannot run as forbidden uid (%d/%s)\n", uid, cmd)
+		log.LogErr("cannot run as forbidden uid (%d/%s)\n", uid, cmd)
 		os.Exit(107)
 	}
 
@@ -137,7 +113,7 @@ func main() {
 	 * or as a GID less than AP_GID_MIN.  Tsk tsk.
 	 */
 	if gid == "0" || (gid < suexec.AP_GID_MIN) {
-		logErr("cannot run as forbidden gid (%lu/%s)\n", gid, cmd)
+		log.LogErr("cannot run as forbidden gid (%lu/%s)\n", gid, cmd)
 		os.Exit(108)
 	}
 
@@ -149,7 +125,7 @@ func main() {
 	 */
 	gid_int, err := strconv.Atoi(gid)
 	if err := syscall.Setgid(gid_int); err != nil {
-		logErr("failed to setgid (%lu: %s)\n", gid, cmd)
+		log.LogErr("failed to setgid (%lu: %s)\n", gid, cmd)
 		os.Exit(109)
 	}
 
@@ -158,7 +134,7 @@ func main() {
 	 */
 	uid_int, err := strconv.Atoi(uid)
 	if err := syscall.Setuid(uid_int); err != nil {
-		logErr("failed to setuid (%d: %s)\n", uid, cmd)
+		log.LogErr("failed to setuid (%d: %s)\n", uid, cmd)
 		os.Exit(110)
 	}
 
@@ -173,7 +149,7 @@ func main() {
 	var dwd string
 	cwd, err := os.Getwd()
 	if err != nil {
-		logErr("cannot get current working directory\n")
+		log.LogErr("cannot get current working directory\n")
 		os.Exit(111)
 	}
 
@@ -182,39 +158,41 @@ func main() {
 	} else {
 		/* oops */
 		if err = os.Chdir(suexec.AP_DOC_ROOT); err != nil {
-			logErr("cannot get docroot information (%s)\n", suexec.AP_DOC_ROOT)
+			log.LogErr("cannot get docroot information (%s)\n", suexec.AP_DOC_ROOT)
 			os.Exit(113)
 		}
 		dwd, err = os.Getwd()
 		if err != nil {
-			logErr("cannot get docroot information (%s)\n", suexec.AP_DOC_ROOT)
+			log.LogErr("cannot get docroot information (%s)\n", suexec.AP_DOC_ROOT)
 			os.Exit(113)
 		}
 
 		if err = os.Chdir(cwd); err != nil {
-			logErr("cannot get docroot information (%s)\n", suexec.AP_DOC_ROOT)
+			log.LogErr("cannot get docroot information (%s)\n", suexec.AP_DOC_ROOT)
 			os.Exit(113)
 		}
 	}
 
 	if !strings.HasPrefix(cwd, dwd) {
-		logErr("command not in docroot (%s/%s)\n", cwd, cmd)
+		log.LogErr("command not in docroot (%s/%s)\n", cwd, cmd)
 		os.Exit(114)
 	}
 
 	script, err := suexec.NewScript(cmd, cwd)
 	if err != nil {
-		logErr("%v\n", err)
+		log.LogErr("%v\n", err)
 		os.Exit(1)
 	}
 
 	if err := script.VerifyToSuexec(uid_int, gid_int); err != nil {
-		logErr(err.Message())
+		log.LogErr(err.Message())
 		os.Exit(err.Status())
 	}
 
+	log.SetCloseOnExec()
+
 	if err := syscall.Exec(cmd, os.Args, environ); err != nil {
-		logErr("(%d) %s: failed(%s)\n", err, err, cmd)
+		log.LogErr("(%d) %s: failed(%s)\n", err, err, cmd)
 		os.Exit(1)
 	}
 
@@ -226,6 +204,6 @@ func main() {
 	 *
 	 * Oh well, log the failure and error out.
 	 */
-	logErr("(%d)%s: exec failed (%s)\n", err, err, cmd)
+	log.LogErr("(%d)%s: exec failed (%s)\n", err, err, cmd)
 	os.Exit(255)
 }
