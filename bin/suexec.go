@@ -181,8 +181,7 @@ func main() {
 		/* todo */
 	} else {
 		/* oops */
-		err = os.Chdir(suexec.AP_DOC_ROOT)
-		if err != nil {
+		if err = os.Chdir(suexec.AP_DOC_ROOT); err != nil {
 			logErr("cannot get docroot information (%s)\n", suexec.AP_DOC_ROOT)
 			os.Exit(113)
 		}
@@ -192,8 +191,7 @@ func main() {
 			os.Exit(113)
 		}
 
-		err = os.Chdir(cwd)
-		if err != nil {
+		if err = os.Chdir(cwd); err != nil {
 			logErr("cannot get docroot information (%s)\n", suexec.AP_DOC_ROOT)
 			os.Exit(113)
 		}
