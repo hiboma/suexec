@@ -111,7 +111,7 @@ func main() {
 	 * a UID less than AP_UID_MIN.  Tsk tsk.
 	 */
 	if uid == "0" || uid < suexec.AP_UID_MIN {
-		log.LogErr("cannot run as forbidden uid (%d/%s)\n", uid, cmd)
+		log.LogErr("cannot run as forbidden uid (%s/%s)\n", uid, cmd)
 		os.Exit(107)
 	}
 
@@ -120,7 +120,7 @@ func main() {
 	 * or as a GID less than AP_GID_MIN.  Tsk tsk.
 	 */
 	if gid == "0" || (gid < suexec.AP_GID_MIN) {
-		log.LogErr("cannot run as forbidden gid (%lu/%s)\n", gid, cmd)
+		log.LogErr("cannot run as forbidden gid (%s/%s)\n", gid, cmd)
 		os.Exit(108)
 	}
 
@@ -132,7 +132,7 @@ func main() {
 	 */
 	gid_int, err := strconv.Atoi(gid)
 	if err := syscall.Setgid(gid_int); err != nil {
-		log.LogErr("failed to setgid (%lu: %s)\n", gid, cmd)
+		log.LogErr("failed to setgid (%s: %s)\n", gid, cmd)
 		os.Exit(109)
 	}
 
@@ -141,7 +141,7 @@ func main() {
 	 */
 	uid_int, err := strconv.Atoi(uid)
 	if err := syscall.Setuid(uid_int); err != nil {
-		log.LogErr("failed to setuid (%d: %s)\n", uid, cmd)
+		log.LogErr("failed to setuid (%s: %s)\n", uid, cmd)
 		os.Exit(110)
 	}
 
