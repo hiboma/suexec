@@ -5,6 +5,8 @@
 ## Testing
  
 ```
+$ git clone git@github.com:hiboma/suexec.git
+$ cd suexec
 $ vagrant up
 $ vagarnt ssh
 
