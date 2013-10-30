@@ -33,7 +33,12 @@ func main() {
 	 * comply if so.
 	 */
 	if len(os.Args) > 1 && os.Args[1] == "-V" && pw.Uid == "0" {
-		fmt.Printf(" -D AP_DOC_ROOT=%s\n")
+		fmt.Printf(" -D AP_DOC_ROOT=%s\n", suexec.AP_DOC_ROOT)
+		fmt.Printf(" -D AP_GID_MIN=%s\n", suexec.AP_GID_MIN)
+		fmt.Printf(" -D AP_HTTPD_USER=%s\n", suexec.AP_HTTPD_USER)
+		fmt.Printf(" -D AP_LOG_EXEC=%s\n", suexec.AP_LOG_EXEC)
+		fmt.Printf(" -D AP_SAFE_PATH=%s\n", suexec.AP_SAFE_PATH)
+		fmt.Printf(" -D AP_UID_MIN=%s\n", suexec.AP_UID_MIN)
 		os.Exit(0)
 	}
 	/*
@@ -77,11 +82,13 @@ func main() {
 	/*
 	 * Error out if the target group name is invalid.
 	 */
-	gid, actual_gname, err := suexec.LookupGidAndName(target_gname)
+	gr, err := suexec.LookupGroup(target_gname)
 	if err != nil {
 		log.LogErr("invalid target group name: (%s)\n", target_gname)
 		os.Exit(106)
 	}
+	gid := gr.Gid
+	actual_gname := gr.Name
 
 	/*
 	 * Save these for later since initgroups will hose the struct
