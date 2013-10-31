@@ -82,5 +82,16 @@ func TestConstant(t *testing.T) {
 			Expect(Suexec(args, log)).To(Equal, 114)
 		})
 
+		It("too free arguments if len(args) < 4", func() {
+			args := []string{"suexec", "501", "501"}
+			Expect(Suexec(args, log)).To(Equal, 101)
+
+			args = []string{"suexec", "501"}
+			Expect(Suexec(args, log)).To(Equal, 101)
+
+			args = []string{"suexec"}
+			Expect(Suexec(args, log)).To(Equal, 101)
+		})
+
 	})
 }
