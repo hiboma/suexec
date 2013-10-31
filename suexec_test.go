@@ -7,15 +7,15 @@ import (
 )
 
 var saved_io_writer *os.File
+var original_cwd string
+
+func init() {
+	original_cwd, _ = os.Getwd()
+}
 
 func TestConstant(t *testing.T) {
 
 	Describe(t, "NewSuexecError", func() {
-
-		Before(func() {
-			saved_io_writer = os.Stderr
-			os.Stderr = nil
-		})
 
 		It("NewSuexecError", func() {
 			err := NewSuexecError(0, "error is %s", "one")
@@ -38,6 +38,12 @@ func TestConstant(t *testing.T) {
 
 	Describe(t, "Suexec", func() {
 		log := NewLog("/dev/null")
+
+		Before(func() {
+			saved_io_writer = os.Stderr
+			os.Stderr = nil
+			os.Chdir(original_cwd)
+		})
 
 		It("too free arguments if len(args) < 4", func() {
 			p := Param{
