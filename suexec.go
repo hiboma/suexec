@@ -9,10 +9,6 @@ import (
 	"syscall"
 )
 
-func IsUserdirEnabled(username string) bool {
-	return strings.HasPrefix(username, "~")
-}
-
 func Suexec(args []string, log *Log) (status int) {
 
 	var userdir bool = false

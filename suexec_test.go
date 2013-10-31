@@ -30,16 +30,6 @@ func TestConstant(t *testing.T) {
 
 	})
 
-	Describe(t, "IsUserdirEnabled", func() {
-		It("If username has '~' for prefix, Userdir is enabled", func() {
-			Expect(IsUserdirEnabled("~namahage")).To(Equal, true)
-		})
-
-		It("Userdir is diabled", func() {
-			Expect(IsUserdirEnabled("namahage")).To(Equal, false)
-		})
-	})
-
 	Describe(t, "NewSuexecError", func() {
 		It("NewSuexecError", func() {
 			err := NewSuexecError(0, "error is %s", "one")
