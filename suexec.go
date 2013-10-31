@@ -9,9 +9,21 @@ import (
 	"syscall"
 )
 
-func Suexec(args []string, log *Log) (status int) {
+type Param struct {
+	args []string
+	log  *Log
+	uid  int
+	cwd  string
+}
+
+func Suexec(p Param) (status int) {
 
 	var userdir bool = false
+
+	args := p.args
+	cwd := p.cwd
+	log := p.log
+	original_uid := p.uid
 
 	/*
 	 * Start with a "clean" environment
@@ -22,9 +34,9 @@ func Suexec(args []string, log *Log) (status int) {
 	 * Check existence/validity of the UID of the user
 	 * running this program.  Error out if invalid.
 	 */
-	pw, err := user.Current()
+	pw, err := user.LookupId(strconv.Itoa(original_uid))
 	if err != nil {
-		log.LogErr("crit: invalid uid: (%d) %s\n", os.Getuid(), err)
+		log.LogErr("crit: invalid uid: (%d) %s\n", original_uid, err)
 		return 102
 	}
 	/*
@@ -148,11 +160,6 @@ func Suexec(args []string, log *Log) (status int) {
 	 * directories.  Yuck.
 	 */
 	var dwd string
-	cwd, err := os.Getwd()
-	if err != nil {
-		log.LogErr("cannot get current working directory\n")
-		return 111
-	}
 
 	if userdir {
 		/* todo */

@@ -6,6 +6,15 @@ import (
 )
 
 func main() {
-	status := suexec.Suexec(os.Args, suexec.NewLog(suexec.AP_LOG_EXEC))
+
+	log := suexec.NewLog(suexec.AP_LOG_EXEC)
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.LogErr("cannot get current working directory\n")
+		os.Exit(111)
+	}
+
+	status := suexec.Suexec(suexec.Param{args: os.Args, uid: os.Getuid, cwd: cwd, log: log})
 	os.Exit(status)
 }

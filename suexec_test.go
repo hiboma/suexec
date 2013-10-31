@@ -52,46 +52,115 @@ func TestConstant(t *testing.T) {
 
 	Describe(t, "Suexec", func() {
 		log := NewLog("/dev/null")
-		It("by root(0)/root(0) return cannot run as forbidden uid", func() {
-			args := []string{"suexec", "0", "0", "index.pl"}
-			Expect(Suexec(args, log)).To(Equal, 107)
-		})
 
-		It("by root(0)/vagrant/(501) return cannot run as forbidden gid", func() {
-			args := []string{"suexec", "0", "501", "index.pl"}
-			Expect(Suexec(args, log)).To(Equal, 107)
-		})
-
-		It("by vagrant(501)/root(0) return cannot run as forbidden gid", func() {
-			args := []string{"suexec", "501", "0", "index.pl"}
-			Expect(Suexec(args, log)).To(Equal, 108)
-		})
-
-		It("by ???(999)/root(0) return invalid target user", func() {
-			args := []string{"suexec", "999", "0", "index.pl"}
-			Expect(Suexec(args, log)).To(Equal, 121)
-		})
-
-		It("by vagrant(501)/???(999) return invalid target group name", func() {
-			args := []string{"suexec", "501", "999", "index.pl"}
-			Expect(Suexec(args, log)).To(Equal, 106)
-		})
-
-		It("not-exists-command return command not in docroot", func() {
-			args := []string{"suexec", "501", "501", "not-exists-command"}
-			Expect(Suexec(args, log)).To(Equal, 114)
+		It("too free arguments if len(args) < 4", func() {
+			p := Param{
+				args: []string{"suexec", "501", "501"},
+				uid:  501, /* vagrant */
+				cwd:  "/vagrant/misc",
+				log:  log,
+			}
+			Expect(Suexec(p)).To(Equal, 101)
 		})
 
 		It("too free arguments if len(args) < 4", func() {
-			args := []string{"suexec", "501", "501"}
-			Expect(Suexec(args, log)).To(Equal, 101)
-
-			args = []string{"suexec", "501"}
-			Expect(Suexec(args, log)).To(Equal, 101)
-
-			args = []string{"suexec"}
-			Expect(Suexec(args, log)).To(Equal, 101)
+			p := Param{
+				args: []string{"suexec", "501", "501"},
+				uid:  501, /* vagrant */
+				cwd:  "/vagrant/misc",
+				log:  log,
+			}
+			Expect(Suexec(p)).To(Equal, 101)
 		})
 
+		It("too free arguments if len(args) < 4", func() {
+			p := Param{
+				args: []string{"suexec"},
+				uid:  501, /* vagrant */
+				cwd:  "/vagrant/misc",
+				log:  log,
+			}
+			Expect(Suexec(p)).To(Equal, 101)
+		})
+
+		It("too free arguments if len(args) < 4", func() {
+			p := Param{
+				args: []string{"suexec", "501", "501"},
+				uid:  501, /* vagrant */
+				cwd:  "/vagrant/misc",
+				log:  log,
+			}
+			Expect(Suexec(p)).To(Equal, 101)
+		})
+
+		It("by non existent user(999) return 102", func() {
+			p := Param{
+				args: []string{"suexec", "501", "501", "index.pl"},
+				uid:  999, /* who? */
+				cwd:  "/vagrant",
+				log:  log,
+			}
+			Expect(Suexec(p)).To(Equal, 102)
+		})
+
+		It("by nobody(99) return 103", func() {
+			p := Param{
+				args: []string{"suexec", "501", "501", "index.pl"},
+				uid:  99, /* nobody */
+				cwd:  "/vagrant",
+				log:  log,
+			}
+			Expect(Suexec(p)).To(Equal, 103)
+		})
+
+		It("by vagrant(500)/???(999) return 106", func() {
+			p := Param{
+				args: []string{"suexec", "500", "999", "index.pl"},
+				uid:  501, /* vagrant */
+				cwd:  "/vagrant",
+				log:  log,
+			}
+			Expect(Suexec(p)).To(Equal, 106)
+		})
+
+		It("by root(0)/root(0) return cannot run as forbidden uid", func() {
+			p := Param{
+				args: []string{"suexec", "0", "0", "index.pl"},
+				uid:  501, /* vagrant */
+				cwd:  "/vagrant",
+				log:  log,
+			}
+			Expect(Suexec(p)).To(Equal, 107)
+		})
+
+		It("by vagrant(501)/root(0) return 108", func() {
+			p := Param{
+				args: []string{"suexec", "501", "0", "index.pl"},
+				uid:  501, /* vagrant */
+				cwd:  "/vagrant",
+				log:  log,
+			}
+			Expect(Suexec(p)).To(Equal, 108)
+		})
+
+		It("by ???(999)/root(0) return 12", func() {
+			p := Param{
+				args: []string{"suexec", "999", "0", "index.pl"},
+				uid:  501, /* vagrant */
+				cwd:  "/vagrant",
+				log:  log,
+			}
+			Expect(Suexec(p)).To(Equal, 121)
+		})
+
+		It("not-exists-command return command not in docroot", func() {
+			p := Param{
+				args: []string{"suexec", "501", "501", "not-exists-command"},
+				uid:  501, /* vagrant */
+				cwd:  "/vagrant",
+				log:  log,
+			}
+			Expect(Suexec(p)).To(Equal, 114)
+		})
 	})
 }
