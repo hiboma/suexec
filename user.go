@@ -3,7 +3,12 @@ package suexec
 import (
 	"os/user"
 	"regexp"
+	"strings"
 )
+
+func IsUserdirEnabled(username string) bool {
+	return strings.HasPrefix(username, "~")
+}
 
 func Lookup(username string) (pw *user.User, err error) {
 

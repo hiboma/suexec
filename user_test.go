@@ -14,16 +14,6 @@ func TestSuexecPasswd(t *testing.T) {
 			Expect(err).To(Equal, nil)
 		})
 
-		Describe(t, "IsUserdirEnabled", func() {
-			It("If username has '~' for prefix, Userdir is enabled", func() {
-				Expect(IsUserdirEnabled("~namahage")).To(Equal, true)
-			})
-
-			It("Userdir is diabled", func() {
-				Expect(IsUserdirEnabled("namahage")).To(Equal, false)
-			})
-		})
-
 		It("lookup 'hogehogehoge' should not exists", func() {
 			pw, err := Lookup("hgoehogehgoe")
 			Expect(pw).To(Exist)
@@ -34,6 +24,16 @@ func TestSuexecPasswd(t *testing.T) {
 			pw, err := Lookup("1234567890")
 			Expect(pw).To(Exist)
 			Expect(err.(user.UnknownUserIdError)).To(Exist)
+		})
+	})
+
+	Describe(t, "IsUserdirEnabled", func() {
+		It("If username has '~' for prefix, Userdir is enabled", func() {
+			Expect(IsUserdirEnabled("~namahage")).To(Equal, true)
+		})
+
+		It("Userdir is diabled", func() {
+			Expect(IsUserdirEnabled("namahage")).To(Equal, false)
 		})
 	})
 }
