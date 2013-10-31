@@ -66,6 +66,12 @@ func CleanEnv() []string {
 	return cleanupEnv(os.Environ(), safe_env_lst)
 }
 
+/* While cleaning the environment, the environment should be clean.
+ * (e.g. malloc() may get the name of a file for writing debugging info.
+ * Bad news if MALLOC_DEBUG_FILE is set to /etc/passwd.  Sprintf() may be
+ * susceptible to bad locale settings....)
+ * (from PR 2790)
+ */
 func cleanupEnv(environ []string, safe_env_lst []string) []string {
 	cleanenv := []string{}
 	for cidx := range environ {
