@@ -93,13 +93,19 @@ func Suexec(p Param) (status int) {
 		log.LogErr("invalid target group name: (%s)\n", target_gname)
 		return 106
 	}
-	gid := gr.Gid
+	gid, err := strconv.Atoi(gr.Gid)
+	if err != nil {
+		log.LogErr("failed to strconv.Atoi: (%v)\n", err)
+	}
 	actual_gname := gr.Name
 
 	/*
 	 * Save these for later since initgroups will hose the struct
 	 */
-	uid := pw.Uid
+	uid, err := strconv.Atoi(pw.Uid)
+	if err != nil {
+		log.LogErr("failed to strconv.Atoi: (%v)\n", err)
+	}
 	actual_uname := pw.Username
 	//	target_homedir := pw.HomeDir
 
@@ -116,8 +122,8 @@ func Suexec(p Param) (status int) {
 	 * Error out if attempt is made to execute as root or as
 	 * a UID less than AP_UID_MIN.  Tsk tsk.
 	 */
-	if uid == "0" || uid < AP_UID_MIN {
-		log.LogErr("cannot run as forbidden uid (%s/%s)\n", uid, cmd)
+	if uid == 0 || uid < AP_UID_MIN {
+		log.LogErr("cannot run as forbidden uid (%d/%s)\n", uid, cmd)
 		return 107
 	}
 
@@ -125,8 +131,8 @@ func Suexec(p Param) (status int) {
 	 * Error out if attempt is made to execute as root group
 	 * or as a GID less than AP_GID_MIN.  Tsk tsk.
 	 */
-	if gid == "0" || (gid < AP_GID_MIN) {
-		log.LogErr("cannot run as forbidden gid (%s/%s)\n", gid, cmd)
+	if gid == 0 || (gid < AP_GID_MIN) {
+		log.LogErr("cannot run as forbidden gid (%d/%s)\n", gid, cmd)
 		return 108
 	}
 
@@ -136,18 +142,16 @@ func Suexec(p Param) (status int) {
 	 * Initialize the group access list for the target user,
 	 * and setgid() to the target group. If unsuccessful, error out.
 	 */
-	gid_int, err := strconv.Atoi(gid)
-	if err := syscall.Setgid(gid_int); err != nil {
-		log.LogErr("failed to setgid (%s: %s)\n", gid, cmd)
+	if err := syscall.Setgid(gid); err != nil {
+		log.LogErr("failed to setgid (%d: %s)\n", gid, cmd)
 		return 109
 	}
 
 	/*
 	 * setuid() to the target user.  Error out on fail.
 	 */
-	uid_int, err := strconv.Atoi(uid)
-	if err := syscall.Setuid(uid_int); err != nil {
-		log.LogErr("failed to setuid (%s: %s)\n", uid, cmd)
+	if err := syscall.Setuid(uid); err != nil {
+		log.LogErr("failed to setuid (%d: %s)\n", uid, cmd)
 		return 110
 	}
 
@@ -192,7 +196,7 @@ func Suexec(p Param) (status int) {
 		return 1
 	}
 
-	if err := script.VerifyToSuexec(uid_int, gid_int); err != nil {
+	if err := script.VerifyToSuexec(uid, gid); err != nil {
 		log.LogErr(err.Message())
 		return err.Status()
 	}

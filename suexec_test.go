@@ -133,9 +133,29 @@ func TestConstant(t *testing.T) {
 			Expect(Suexec(p)).To(Equal, 107)
 		})
 
+		It("by root(0)/vagrant(501) return 107", func() {
+			p := Param{
+				args: []string{"suexec", "0", "501", "index.pl"},
+				uid:  501, /* vagrant */
+				cwd:  "/vagrant",
+				log:  log,
+			}
+			Expect(Suexec(p)).To(Equal, 107)
+		})
+
 		It("by vagrant(501)/root(0) return 108", func() {
 			p := Param{
 				args: []string{"suexec", "501", "0", "index.pl"},
+				uid:  501, /* vagrant */
+				cwd:  "/vagrant",
+				log:  log,
+			}
+			Expect(Suexec(p)).To(Equal, 108)
+		})
+
+		It("by vagrant(501)/nobody(99) return 108", func() {
+			p := Param{
+				args: []string{"suexec", "501", "99", "index.pl"},
 				uid:  501, /* vagrant */
 				cwd:  "/vagrant",
 				log:  log,
