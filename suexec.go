@@ -25,7 +25,7 @@ func Suexec(args []string, log *Log) (status int) {
 	pw, err := user.Current()
 	if err != nil {
 		log.LogErr("crit: invalid uid: (%d) %s\n", os.Getuid(), err)
-		return 1
+		return 102
 	}
 	/*
 	 * See if this is a 'how were you compiled' request, and
