@@ -52,7 +52,7 @@ func Suexec(p Param) (status int) {
 	 * all of them to variables.  Otherwise, error out.
 	 */
 	if len(args) < 4 {
-		fmt.Println("too few arguments")
+		fmt.Fprintln(os.Stderr, "too few arguments")
 		return 101
 	}
 

@@ -2,8 +2,11 @@ package suexec
 
 import (
 	. "github.com/r7kamura/gospel"
+	"os"
 	"testing"
 )
+
+var saved_io_writer *os.File
 
 func TestConstant(t *testing.T) {
 	Describe(t, "cleanupEnv", func() {
@@ -31,6 +34,12 @@ func TestConstant(t *testing.T) {
 	})
 
 	Describe(t, "NewSuexecError", func() {
+
+		Before(func() {
+			saved_io_writer = os.Stderr
+			os.Stderr = nil
+		})
+
 		It("NewSuexecError", func() {
 			err := NewSuexecError(0, "error is %s", "one")
 			Expect(err.status).To(Equal, 0)
@@ -181,6 +190,10 @@ func TestConstant(t *testing.T) {
 				log:  log,
 			}
 			Expect(Suexec(p)).To(Equal, 114)
+		})
+
+		After(func() {
+			os.Stderr = saved_io_writer
 		})
 	})
 }
