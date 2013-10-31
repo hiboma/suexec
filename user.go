@@ -12,7 +12,7 @@ func IsUserdirEnabled(username string) bool {
 
 func Lookup(username string) (pw *user.User, err error) {
 
-	r, err := regexp.Compile(`^\d+$`)
+	r := regexp.MustCompile(`^\d+$`)
 	if !r.MatchString(username) {
 		pw, err = user.Lookup(username)
 	} else {
