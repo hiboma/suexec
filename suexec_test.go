@@ -9,29 +9,6 @@ import (
 var saved_io_writer *os.File
 
 func TestConstant(t *testing.T) {
-	Describe(t, "cleanupEnv", func() {
-
-		It("AP_HTTPD_USER", func() {
-			Expect(AP_HTTPD_USER).To(Exist)
-		})
-
-		It("AP_UID_MIN", func() {
-			Expect(AP_UID_MIN).To(Exist)
-		})
-
-		It("AP_GID_MIN", func() {
-			Expect(AP_GID_MIN).To(Exist)
-		})
-
-		It("AP_DOC_ROOT", func() {
-			Expect(AP_DOC_ROOT).To(Exist)
-		})
-
-		It("AP_LOG_EXEC", func() {
-			Expect(AP_LOG_EXEC).To(Exist)
-		})
-
-	})
 
 	Describe(t, "NewSuexecError", func() {
 
