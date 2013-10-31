@@ -32,12 +32,7 @@ func Suexec(args []string, log *Log) (status int) {
 	 * comply if so.
 	 */
 	if len(args) > 1 && args[1] == "-V" && pw.Uid == "0" {
-		fmt.Printf(" -D AP_DOC_ROOT=%s\n", AP_DOC_ROOT)
-		fmt.Printf(" -D AP_GID_MIN=%s\n", AP_GID_MIN)
-		fmt.Printf(" -D AP_HTTPD_USER=%s\n", AP_HTTPD_USER)
-		fmt.Printf(" -D AP_LOG_EXEC=%s\n", AP_LOG_EXEC)
-		fmt.Printf(" -D AP_SAFE_PATH=%s\n", AP_SAFE_PATH)
-		fmt.Printf(" -D AP_UID_MIN=%s\n", AP_UID_MIN)
+		PrintConstants()
 		return 0
 	}
 	/*
