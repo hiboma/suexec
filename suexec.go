@@ -9,20 +9,20 @@ import (
 )
 
 type Param struct {
-	args []string
-	log  *Log
-	uid  int
-	cwd  string
+	Args []string
+	Log  *Log
+	Uid  int
+	Cwd  string
 }
 
 func Suexec(p Param) *SuexecError {
 
 	var userdir bool = false
 
-	args := p.args
-	cwd := p.cwd
-	log := p.log
-	original_uid := p.uid
+	args := p.Args
+	cwd := p.Cwd
+	log := p.Log
+	original_uid := p.Uid
 
 	/*
 	 * Start with a "clean" environment

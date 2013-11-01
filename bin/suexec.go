@@ -15,6 +15,17 @@ func main() {
 		os.Exit(111)
 	}
 
-	status := suexec.Suexec(suexec.Param{args: os.Args, uid: os.Getuid, cwd: cwd, log: log})
-	os.Exit(status)
+	p := suexec.Param{
+		Args: os.Args,
+		Uid:  os.Getuid(),
+		Cwd:  cwd,
+		Log:  log,
+	}
+
+	if err := suexec.Suexec(p); err != nil {
+		log.LogErr("%s\n", err.Message())
+		os.Exit(err.Status())
+	}
+
+	os.Exit(0)
 }
