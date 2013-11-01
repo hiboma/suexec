@@ -137,7 +137,7 @@ func (self *Suexec) VerifyToSuexec() *SuexecError {
 	 * Log the transaction here to be sure we have an open log
 	 * before we setuid().
 	 */
-	log.LogNoErr("uid: (%s/%s) gid: (%s/%s) cmd: %s",
+	log.LogNoErr("uid: (%s/%s) gid: (%s/%s) cmd: %s\n",
 		target_uname, actual_uname,
 		target_gname, actual_gname,
 		cmd)
