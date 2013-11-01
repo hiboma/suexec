@@ -86,7 +86,7 @@ func TestConstant(t *testing.T) {
 				log:  log,
 			})
 			Expect(err.status).To(Equal, 102)
-			Expect(err.message).To(Equal, "crit: invalid uid: (999) user: unknown userid 999\n")
+			Expect(err.message).To(Equal, "crit: invalid uid: (999) user: unknown userid 999")
 		})
 
 		It("by nobody(99) return 103", func() {
@@ -108,7 +108,7 @@ func TestConstant(t *testing.T) {
 				log:  log,
 			})
 			Expect(err.status).To(Equal, 106)
-			Expect(err.message).To(Equal, "invalid target group name: (999)\n")
+			Expect(err.message).To(Equal, "invalid target group name: (999)")
 		})
 
 		It("by root(0)/root(0) return cannot run as forbidden uid", func() {
@@ -119,7 +119,7 @@ func TestConstant(t *testing.T) {
 				log:  log,
 			})
 			Expect(err.status).To(Equal, 107)
-			Expect(err.message).To(Equal, "cannot run as forbidden uid (0/index.pl)\n")
+			Expect(err.message).To(Equal, "cannot run as forbidden uid (0/index.pl)")
 		})
 
 		It("by root(0)/vagrant(501) return 107", func() {
@@ -130,7 +130,7 @@ func TestConstant(t *testing.T) {
 				log:  log,
 			})
 			Expect(err.status).To(Equal, 107)
-			Expect(err.message).To(Equal, "cannot run as forbidden uid (0/index.pl)\n")
+			Expect(err.message).To(Equal, "cannot run as forbidden uid (0/index.pl)")
 		})
 
 		It("by vagrant(501)/root(0) return 108", func() {
@@ -141,7 +141,7 @@ func TestConstant(t *testing.T) {
 				log:  log,
 			})
 			Expect(err.status).To(Equal, 108)
-			Expect(err.message).To(Equal, "cannot run as forbidden gid (0/index.pl)\n")
+			Expect(err.message).To(Equal, "cannot run as forbidden gid (0/index.pl)")
 		})
 
 		It("by vagrant(501)/nobody(99) return 108", func() {
@@ -152,7 +152,7 @@ func TestConstant(t *testing.T) {
 				log:  log,
 			})
 			Expect(err.status).To(Equal, 108)
-			Expect(err.message).To(Equal, "cannot run as forbidden gid (99/index.pl)\n")
+			Expect(err.message).To(Equal, "cannot run as forbidden gid (99/index.pl)")
 		})
 
 		It("by ???(999)/root(0) return 12", func() {
@@ -163,7 +163,7 @@ func TestConstant(t *testing.T) {
 				log:  log,
 			})
 			Expect(err.status).To(Equal, 121)
-			Expect(err.message).To(Equal, "invalid target user: (999)\n")
+			Expect(err.message).To(Equal, "invalid target user: (999)")
 		})
 
 		It("not-exists-command return command not in docroot", func() {
@@ -174,7 +174,7 @@ func TestConstant(t *testing.T) {
 				log:  log,
 			})
 			Expect(err.status).To(Equal, 114)
-			Expect(err.message).To(Equal, "command not in docroot (/vagrant/not-exists-command)\n")
+			Expect(err.message).To(Equal, "command not in docroot (/vagrant/not-exists-command)")
 		})
 
 		After(func() {

@@ -35,7 +35,7 @@ func Suexec(p Param) *SuexecError {
 	 */
 	pw, err := user.LookupId(strconv.Itoa(original_uid))
 	if err != nil {
-		return NewSuexecError(102, "crit: invalid uid: (%d) %s\n", original_uid, err)
+		return NewSuexecError(102, "crit: invalid uid: (%d) %s", original_uid, err)
 	}
 	/*
 	 * See if this is a 'how were you compiled' request, and
@@ -77,7 +77,7 @@ func Suexec(p Param) *SuexecError {
 	 */
 	pw, err = Lookup(target_uname)
 	if err != nil {
-		return NewSuexecError(121, "invalid target user: (%s)\n", target_uname)
+		return NewSuexecError(121, "invalid target user: (%s)", target_uname)
 	}
 
 	/*
@@ -85,11 +85,11 @@ func Suexec(p Param) *SuexecError {
 	 */
 	gr, err := LookupGroup(target_gname)
 	if err != nil {
-		return NewSuexecError(106, "invalid target group name: (%s)\n", target_gname)
+		return NewSuexecError(106, "invalid target group name: (%s)", target_gname)
 	}
 	gid, err := strconv.Atoi(gr.Gid)
 	if err != nil {
-		log.LogErr("failed to strconv.Atoi: (%v)\n", err)
+		log.LogErr("failed to strconv.Atoi: (%v)", err)
 	}
 	actual_gname := gr.Name
 
@@ -98,7 +98,7 @@ func Suexec(p Param) *SuexecError {
 	 */
 	uid, err := strconv.Atoi(pw.Uid)
 	if err != nil {
-		return NewSuexecError(255, "failed to strconv.Atoi: (%v)\n", err)
+		return NewSuexecError(255, "failed to strconv.Atoi: (%v)", err)
 	}
 	actual_uname := pw.Username
 	//	target_homedir := pw.HomeDir
@@ -107,7 +107,7 @@ func Suexec(p Param) *SuexecError {
 	 * Log the transaction here to be sure we have an open log
 	 * before we setuid().
 	 */
-	log.LogNoErr("uid: (%s/%s) gid: (%s/%s) cmd: %s\n",
+	log.LogNoErr("uid: (%s/%s) gid: (%s/%s) cmd: %s",
 		target_uname, actual_uname,
 		target_gname, actual_gname,
 		cmd)
@@ -117,7 +117,7 @@ func Suexec(p Param) *SuexecError {
 	 * a UID less than AP_UID_MIN.  Tsk tsk.
 	 */
 	if uid == 0 || uid < AP_UID_MIN {
-		return NewSuexecError(107, "cannot run as forbidden uid (%d/%s)\n", uid, cmd)
+		return NewSuexecError(107, "cannot run as forbidden uid (%d/%s)", uid, cmd)
 	}
 
 	/*
@@ -125,7 +125,7 @@ func Suexec(p Param) *SuexecError {
 	 * or as a GID less than AP_GID_MIN.  Tsk tsk.
 	 */
 	if gid == 0 || (gid < AP_GID_MIN) {
-		return NewSuexecError(108, "cannot run as forbidden gid (%d/%s)\n", gid, cmd)
+		return NewSuexecError(108, "cannot run as forbidden gid (%d/%s)", gid, cmd)
 	}
 
 	/*
@@ -135,14 +135,14 @@ func Suexec(p Param) *SuexecError {
 	 * and setgid() to the target group. If unsuccessful, error out.
 	 */
 	if err := syscall.Setgid(gid); err != nil {
-		return NewSuexecError(109, "failed to setgid (%d: %s)\n", gid, cmd)
+		return NewSuexecError(109, "failed to setgid (%d: %s)", gid, cmd)
 	}
 
 	/*
 	 * setuid() to the target user.  Error out on fail.
 	 */
 	if err := syscall.Setuid(uid); err != nil {
-		return NewSuexecError(110, "failed to setuid (%d: %s)\n", uid, cmd)
+		return NewSuexecError(110, "failed to setuid (%d: %s)", uid, cmd)
 	}
 
 	/*
@@ -160,25 +160,25 @@ func Suexec(p Param) *SuexecError {
 	} else {
 		/* oops */
 		if err = os.Chdir(AP_DOC_ROOT); err != nil {
-			return NewSuexecError(113, "cannot get docroot information (%s)\n", AP_DOC_ROOT)
+			return NewSuexecError(113, "cannot get docroot information (%s)", AP_DOC_ROOT)
 		}
 		dwd, err = os.Getwd()
 		if err != nil {
-			return NewSuexecError(113, "cannot get docroot information (%s)\n", AP_DOC_ROOT)
+			return NewSuexecError(113, "cannot get docroot information (%s)", AP_DOC_ROOT)
 		}
 
 		if err = os.Chdir(cwd); err != nil {
-			return NewSuexecError(113, "cannot get docroot information (%s)\n", AP_DOC_ROOT)
+			return NewSuexecError(113, "cannot get docroot information (%s)", AP_DOC_ROOT)
 		}
 	}
 
 	if !strings.HasPrefix(cwd, dwd) {
-		return NewSuexecError(114, "command not in docroot (%s/%s)\n", cwd, cmd)
+		return NewSuexecError(114, "command not in docroot (%s/%s)", cwd, cmd)
 	}
 
 	script, err := NewScript(cmd, cwd)
 	if err != nil {
-		return NewSuexecError(1, "%v\n", err)
+		return NewSuexecError(1, "%v", err)
 	}
 
 	if suexec_err := script.VerifyToSuexec(uid, gid); err != nil {
@@ -188,7 +188,7 @@ func Suexec(p Param) *SuexecError {
 	log.SetCloseOnExec()
 
 	if err := syscall.Exec(cmd, args, environ); err != nil {
-		return NewSuexecError(1, "(%d) %s: failed(%s)\n", err, err, cmd)
+		return NewSuexecError(1, "(%d) %s: failed(%s)", err, err, cmd)
 	}
 
 	/*
@@ -199,5 +199,5 @@ func Suexec(p Param) *SuexecError {
 	 *
 	 * Oh well, log the failure and error out.
 	 */
-	return NewSuexecError(255, "(%d)%s: exec failed (%s)\n", err, err, cmd)
+	return NewSuexecError(255, "(%d)%s: exec failed (%s)", err, err, cmd)
 }
