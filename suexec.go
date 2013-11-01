@@ -8,6 +8,13 @@ import (
 	"syscall"
 )
 
+type Suexec struct {
+	cmd     string
+	args    []string
+	environ []string
+	param   *Param
+}
+
 type Param struct {
 	Args []string
 	Log  *Log
@@ -15,19 +22,42 @@ type Param struct {
 	Cwd  string
 }
 
-func Suexec(p Param) *SuexecError {
+func NewSuexec(p Param) *Suexec {
+	return &Suexec{param: &p}
+}
 
-	var userdir bool = false
+func (self *Suexec) Exec() *SuexecError {
 
-	args := p.Args
-	cwd := p.Cwd
-	log := p.Log
-	original_uid := p.Uid
+	cmd := self.param.Args[3]
 
 	/*
 	 * Start with a "clean" environment
 	 */
 	environ := CleanEnv()
+
+	/*
+	 * (I can't help myself...sorry.)
+	 *
+	 * Uh oh.  Still here.  Where's the kaboom?  There was supposed to be an
+	 * EARTH-shattering kaboom!
+	 *
+	 * Oh well, log the failure and error out.
+	 */
+	if err := syscall.Exec(cmd, []string{cmd}, environ); err != nil {
+		return NewSuexecError(255, "(%d) %s: failed(%s)", err, err, cmd)
+	}
+
+	return nil
+}
+
+func (self *Suexec) VerifyToSuexec() *SuexecError {
+
+	var userdir bool = false
+
+	args := self.param.Args
+	cwd := self.param.Cwd
+	log := self.param.Log
+	original_uid := self.param.Uid
 
 	/*
 	 * Check existence/validity of the UID of the user
@@ -187,17 +217,5 @@ func Suexec(p Param) *SuexecError {
 
 	log.SetCloseOnExec()
 
-	if err := syscall.Exec(cmd, args, environ); err != nil {
-		return NewSuexecError(1, "(%d) %s: failed(%s)", err, err, cmd)
-	}
-
-	/*
-	 * (I can't help myself...sorry.)
-	 *
-	 * Uh oh.  Still here.  Where's the kaboom?  There was supposed to be an
-	 * EARTH-shattering kaboom!
-	 *
-	 * Oh well, log the failure and error out.
-	 */
-	return NewSuexecError(255, "(%d)%s: exec failed (%s)", err, err, cmd)
+	return nil
 }

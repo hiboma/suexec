@@ -22,10 +22,17 @@ func main() {
 		Log:  log,
 	}
 
-	if err := suexec.Suexec(p); err != nil {
+	script := suexec.NewSuexec(p)
+
+	if err := script.VerifyToSuexec(); err != nil {
 		log.LogErr("%s\n", err.Message())
 		os.Exit(err.Status())
 	}
 
-	os.Exit(0)
+	if err := script.Exec(); err != nil {
+		log.LogErr("%s\n", err.Message())
+		os.Exit(err.Status())
+	}
+
+	os.Exit(255)
 }
