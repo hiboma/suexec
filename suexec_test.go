@@ -201,6 +201,18 @@ func TestConstant(t *testing.T) {
 			Expect(err.message).To(Equal, "command not in docroot (/vagrant/not-exists-command)")
 		})
 
+		It("return nil if all ok", func() {
+
+			err := NewSuexec(Param{
+				Args: []string{"suexec", "501", "501", "index.pl"},
+				Uid:  501, /* vagrant */
+				Cwd:  "/vagrant/misc",
+				Log:  log,
+			}).VerifyToSuexec()
+
+			Expect(err == nil).To(Equal, true)
+		})
+
 		After(func() {
 			os.Stderr = saved_io_writer
 		})
