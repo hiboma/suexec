@@ -25,7 +25,9 @@ func main() {
 	script := suexec.NewSuexec(p)
 
 	if err := script.VerifyToSuexec(); err != nil {
-		log.LogErr("%s\n", err.Message())
+		if err.Status() != 0 {
+			log.LogErr("%s\n", err.Message())
+		}
 		os.Exit(err.Status())
 	}
 
