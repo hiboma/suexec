@@ -2,6 +2,7 @@
   git
   strace
   lsof
+  patch
   vim
 ].each do |p|
   package p do
