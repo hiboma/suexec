@@ -63,7 +63,9 @@ var safe_env_lst = []string{
 }
 
 func CleanEnv() []string {
-	return cleanupEnv(os.Environ(), safe_env_lst)
+	environ := os.Environ()
+	os.Clearenv()
+	return cleanupEnv(environ, safe_env_lst)
 }
 
 /* While cleaning the environment, the environment should be clean.

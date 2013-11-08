@@ -9,10 +9,9 @@ import (
 )
 
 type Suexec struct {
-	cmd     string
-	args    []string
-	environ []string
-	param   *Param
+	cmd   string
+	args  []string
+	param *Param
 }
 
 type Param struct {
@@ -26,14 +25,9 @@ func NewSuexec(p Param) *Suexec {
 	return &Suexec{param: &p}
 }
 
-func (self *Suexec) Exec() *SuexecError {
+func (self *Suexec) Exec(environ []string) *SuexecError {
 
 	cmd := self.param.Args[3]
-
-	/*
-	 * Start with a "clean" environment
-	 */
-	environ := CleanEnv()
 
 	/*
 	 * (I can't help myself...sorry.)

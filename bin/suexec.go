@@ -7,6 +7,8 @@ import (
 
 func main() {
 
+	environ := suexec.CleanEnv()
+
 	log := suexec.NewLog(suexec.AP_LOG_EXEC)
 
 	cwd, err := os.Getwd()
@@ -31,7 +33,7 @@ func main() {
 		os.Exit(err.Status())
 	}
 
-	if err := script.Exec(); err != nil {
+	if err := script.Exec(environ); err != nil {
 		log.LogErr("%s\n", err.Message())
 		os.Exit(err.Status())
 	}
